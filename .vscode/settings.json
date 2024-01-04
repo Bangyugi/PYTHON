@@ -1,0 +1,7 @@
+{
+    "python.testing.pytestArgs": [
+        "Bai_hoc"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}
