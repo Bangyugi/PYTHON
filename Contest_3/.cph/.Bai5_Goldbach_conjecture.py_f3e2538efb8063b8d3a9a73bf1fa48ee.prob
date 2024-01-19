@@ -1,0 +1,1 @@
+{"name":"Local: Bai5_Goldbach_conjecture","url":"d:\\My storage\\Desktop\\PYTHON\\Contest_3\\Bai5_Goldbach_conjecture.py","tests":[{"id":1704708094883,"input":"1\n10","output":"3 7\n5 5"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\My storage\\Desktop\\PYTHON\\Contest_3\\Bai5_Goldbach_conjecture.py","group":"local","local":true}
