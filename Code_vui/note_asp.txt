@@ -1,0 +1,107 @@
+    <style>
+        .product-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .search-bar {
+            min-width: 500px;
+        }
+
+        .sort-bar {
+            min-width: 300px;
+        }
+    </style>
+
+-----------------------------------------------------------------------------
+
+ <img  id="previewImage" src="@Url.Content("~/WineImages/no-image-news.png")" alt="" class="product-img"/>
+ <input type="file" name="ImageFile" id="ImageFile" class="form-control" accept="image/*" />
+
+<script>
+    document.getElementById('ImageFile').addEventListener('change', function (event) {      
+            document.getElementById('PreviewImage').src = URL.createObjectURL(event.target.files[0]);
+    });
+</script>
+
+-----------------------------------------------------------------------------
+
+@using (Html.BeginForm("Create","Products",FormMethod.Post, new {enctype =  "multipart/form-data"})) 
+
+
+ if (ImageFile != null && ImageFile.ContentLength > 0)
+ {
+     String fileName = Path.GetFileName(ImageFile.FileName);
+     String path = Path.Combine(Server.MapPath("~/WineImages"), fileName);
+
+     ImageFile.SaveAs(path);
+     product.Image = fileName;
+ }
+ else
+ {
+     product.Image = "no-image-news.png";
+ }
+
+-----------------------------------------------------------------------------
+
+@{
+    ViewBag.Title = "Index";
+    var currentSearch = Request.QueryString["inputSearch"];
+    var currentSort = Request.QueryString["sortBy"];
+}
+
+<form class="filter-container d-flex align-items-center justify-content-between">
+    <div class="search-bar d-flex align-items-center justify-content-start gap-2">
+        <label> Tìm kiếm theo:</label>
+        <input type="text" name="inputSearch" class="form-control" />
+        <button type="submit" value="@currentSearch" class="btn btn-outline-dark">Tìm kiếm</button>
+    </div>
+    <div class="sort-bar d-flex align-items-center justify-content-end gap-2">
+        <label>Sắp xếp theo:</label>
+        <select name="sortBy" class="form-select" style="width:200px;" onchange="this.form.submit()">
+            <option @(currentSort == "ProductName" ? "selected" : "") value="ProductName">Tên rượu</option>
+            <option @(currentSort == "Price" ? "selected" : "") value="Price">Giá bán</option>
+            <option @(currentSort == "Quantity" ? "selected" : "") value="Quantity">Số lượng</option>
+        </select>
+    </div>
+</form>
+
+
+-----------------------------------------------------------------------------
+
+public ActionResult Index(string searchInput, string sortBy, int? page)
+{
+    var products = db.Products.Include(p => p.Catalogy);
+
+    if (!string.IsNullOrWhiteSpace(searchInput))
+    {
+        products = products.Where(p=> p.ProductName.Contains(searchInput) || p.Description.Contains(searchInput) ||
+                                        p.Region.Contains(searchInput));
+    }
+
+    switch (sortBy)
+    {
+
+        case "Price":
+            products = products.OrderBy(p => p.Price);
+            break;
+        case "Quantity":
+            products = products.OrderBy(p => p.Quantity);
+            break;
+        default:
+            products = products.OrderBy(p => p.ProductName);
+            break;
+    }
+
+    int pageSize = 6;
+    int pageNumber = page ?? 1;
+
+    return View(products.ToPagedList(pageNumber, pageSize));
+}
+
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchInput = currentSearch, sortBy = currentSort }))
+
+
